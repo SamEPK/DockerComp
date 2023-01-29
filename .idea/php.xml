@@ -144,6 +144,7 @@
       <path value="$PROJECT_DIR$/project/vendor/symfony/dotenv" />
       <path value="$PROJECT_DIR$/project/vendor/symfony/expression-language" />
       <path value="$PROJECT_DIR$/project/vendor/phpstan/phpdoc-parser" />
+      <path value="$PROJECT_DIR$/project/vendor/symfony/webpack-encore-bundle" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.2" />
