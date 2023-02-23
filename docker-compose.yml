@@ -31,7 +31,10 @@ services:
           - "8743:80"
         volumes:
             - ./php/vhosts:/etc/apache2/sites-enabled
-            - ./:/var/www
+            - ./:/var/www:cached
+            - /www/var/cache
+            - /www/vendor
+            - /www/node_modules
         restart: always
         networks:
             - dev
