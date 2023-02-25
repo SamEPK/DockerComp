@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:7.4-apache
 
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
@@ -17,8 +17,11 @@ RUN docker-php-ext-configure intl
 RUN docker-php-ext-install pdo pdo_mysql gd opcache intl zip calendar dom mbstring zip gd xsl
 RUN pecl install apcu && docker-php-ext-enable apcu
 
-WORKDIR /var/www/
+WORKDIR /var/www/project
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update && apt-get install -y yarn
+
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs
