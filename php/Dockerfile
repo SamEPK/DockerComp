@@ -13,12 +13,23 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
 RUN curl -sSk https://getcomposer.org/installer | php -- --disable-tls && \
    mv composer.phar /usr/local/bin/composer
 
+RUN docker-php-ext-configure intl
 RUN docker-php-ext-install pdo pdo_mysql gd opcache intl zip calendar dom mbstring zip gd xsl
-#RUN docker-php-ext-enable opcache intl zip calendar dom mbstring zip gd xsl \
 RUN pecl install apcu && docker-php-ext-enable apcu
 
-WORKDIR /var/www/
+WORKDIR /var/www/project
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
     && apt-get update && apt-get install -y yarn
+
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs
+
+COPY ./composer.json ./composer.lock /var/www/project/
+
+COPY . /var/www/project
+
+RUN composer update --no-dev --no-scripts --no-autoloader && \
+    rm -rf /root/.composer/cache
+RUN composer dump-autoload --no-dev --classmap-authoritative
