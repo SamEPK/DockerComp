@@ -19,17 +19,7 @@ RUN pecl install apcu && docker-php-ext-enable apcu
 
 WORKDIR /var/www/project
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-    && apt-get update && apt-get install -y yarn
-
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - \
-    && apt-get install -y nodejs
-
-COPY ./composer.json ./composer.lock /var/www/project/
-
-COPY . /var/www/project
-
-RUN composer update --no-dev --no-scripts --no-autoloader && \
-    rm -rf /root/.composer/cache
-RUN composer dump-autoload --no-dev --classmap-authoritative
+COPY ./docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN mkdir -p /var/run/php \&& chmod +x /usr/local/bin/docker-entrypoint
+ENTRYPOINT ["docker-entrypoint"]
+CMD ["apache2ctl", "-D", "FOREGROUND"]

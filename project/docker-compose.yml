@@ -34,7 +34,8 @@ services:
             - ./:/var/www:cached
             - /www/var/cache
             - /www/vendor
-        restart: always
+            - /www/node_modules
+        restart: unless-stopped
         networks:
             - dev
 networks:
