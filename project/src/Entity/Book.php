@@ -46,7 +46,7 @@ class Book
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $readCount;
+    private $readCount = 1;
 
     public function getId(): ?int
     {
@@ -118,10 +118,14 @@ class Book
         return $this->readCount;
     }
 
-    public function setReadCount(?int $readCount): self
+    public function setReadCount(?int $readCount = 1): self
     {
-        $this->readCount = $readCount;
-
+        if($readCount == "" || $readCount = " "){
+            $this->readCount = 1;
+        }
+        else{
+            $this->readCount = $readCount;
+        }
         return $this;
     }
 }
