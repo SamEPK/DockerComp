@@ -6,6 +6,8 @@ use App\Entity\Book;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+
 
 class BookType extends AbstractType
 {
@@ -16,7 +18,11 @@ class BookType extends AbstractType
                 ->add('title')
                 ->add('author')
                 ->add('overview')
-                ->add('picture')
+                ->add('pictureFile', FileType::class, [
+                    'required' => false,
+                    'label' => 'Cover image (JPG or PNG file)',
+                    'mapped' => false,
+                ])
                 ->add('readCount')
             ;
         }
