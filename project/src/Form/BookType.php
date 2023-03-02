@@ -9,22 +9,22 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class BookType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
-    {
-        $builder
-            ->add('isbn')
-            ->add('title')
-            ->add('author')
-            ->add('overview')
-            ->add('picture')
-            ->add('readCount')
-        ;
-    }
+        public function buildForm(FormBuilderInterface $builder, array $options): void
+        {
+            $builder
+                ->add('isbn')
+                ->add('title')
+                ->add('author')
+                ->add('overview')
+                ->add('picture')
+                ->add('readCount')
+            ;
+        }
 
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'data_class' => Book::class,
-        ]);
+        public function configureOptions(OptionsResolver $resolver): void
+        {
+            $resolver->setDefaults([
+                'data_class' => Book::class,
+            ]);
+        }
     }
-}

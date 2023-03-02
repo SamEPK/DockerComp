@@ -29,8 +29,8 @@
                 <td>{{ book.picture }}</td>
                 <td>{{ book.readCount }}</td>
                 <td>
-                    <a href="{{ path('app_book_show', {'id': book.id}) }}">show</a>
-                    <a href="{{ path('app_book_edit', {'id': book.id}) }}">edit</a>
+                    <a href="{{ path('app_book_show', {'isbn': book.isbn}) }}">show</a>
+                    <a href="{{ path('app_book_edit', {'isbn': book.isbn}) }}">edit</a>
                 </td>
             </tr>
         {% else %}

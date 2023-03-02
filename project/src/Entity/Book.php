@@ -38,9 +38,10 @@ class Book
     private $overview;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="blob", nullable=true)
      */
     private $picture;
+
 
     /**
      * @ORM\Column(type="integer", nullable=true)
