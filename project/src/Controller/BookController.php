@@ -28,16 +28,21 @@ class BookController extends AbstractController
     /**
      * @Route("/new", name="app_book_new", methods={"GET", "POST"})
      */
-    public function new(Request $request, BookRepository $bookRepository): Response
+    function new(Request $request, BookRepository $bookRepository): Response
     {
         $book = new Book();
         $form = $this->createForm(BookType::class, $book);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $bookRepository->add($book, true);
-
-            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+            $existingBook = $bookRepository->findOneBy(['isbn' => $book->getIsbn()]);
+            if ($existingBook) {
+                $this->addFlash('error', 'ISBN already exists!');
+                return $this->redirectToRoute('app_book_new');
+            } else {
+                $bookRepository->add($book, true);
+                return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->renderForm('book/new.html.twig', [
