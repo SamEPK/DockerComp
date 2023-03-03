@@ -33,21 +33,26 @@ class BookController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="app_book_new", methods={"GET", "POST"})
+     * @Route("/new", name="app_book_new", methods={"GET","POST"})
      */
-    public function new(Request $request): Response
+    public function new(Request $request, BookRepository $bookRepository): Response
     {
         $book = new Book();
         $form = $this->createForm(BookType::class, $book);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($this->bookRepository->findOneBy(['isbn' => $book->getIsbn()])) {
+            $book->setPictureFile($form->get('pictureFile')->getData());
+            $book->uploadPicture();
+
+            $existingBook = $bookRepository->findOneBy(['isbn' => $book->getIsbn()]);
+            if ($existingBook) {
                 $this->addFlash('error', 'ISBN already exists!');
                 return $this->redirectToRoute('app_book_new');
+            } else {
+                $bookRepository->add($book, true);
+                return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
             }
-            $this->bookRepository->add($book, true);
-            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('book/new.html.twig', [
@@ -59,8 +64,16 @@ class BookController extends AbstractController
     /**
      * @Route("/{isbn}", name="app_book_show", methods={"GET"})
      */
-    public function show(Book $book): Response
+    public function show(string $isbn, BookRepository $bookRepository): Response
     {
+        $book = $bookRepository->findOneBy(['isbn' => $isbn]);
+
+        if (!$book) {
+            # throw $this->createNotFoundException('Le livre que vous recherchez n\'existe pas.');
+            $content = $this->render('errors/error404.html.twig');
+            return new Response($content, Response::HTTP_NOT_FOUND);
+        }
+
         return $this->render('book/show.html.twig', [
             'book' => $book,
         ]);
@@ -69,10 +82,18 @@ class BookController extends AbstractController
     /**
      * @Route("/{isbn}/edit", name="app_book_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Book $book): Response
+    public function edit(Request $request, Book $book, BookRepository $bookRepository, string $isbn): Response
     {
+
         $form = $this->createForm(BookType::class, $book);
         $form->handleRequest($request);
+
+        $book = $bookRepository->findOneBy(['isbn' => $isbn]);
+        if (!$book) {
+            # throw $this->createNotFoundException('Le livre que vous recherchez n\'existe pas.');
+            $content = $this->render('errors/error404.html.twig');
+            return new Response($content, Response::HTTP_NOT_FOUND);
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->bookRepository->add($book, true);
