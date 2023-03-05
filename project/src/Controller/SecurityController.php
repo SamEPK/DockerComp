@@ -12,7 +12,7 @@ class SecurityController extends AbstractController
     #[Route(path: '/home', name: 'home')]
     public function home(AuthenticationUtils $authenticationUtils): Response
     {
-        return $this->renderView('security/index.html.twig');
+        return $this->render('security/index.html.twig');
     }
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
