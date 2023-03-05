@@ -12,15 +12,14 @@ class SecurityController extends AbstractController
     #[Route(path: '/home', name: 'home')]
     public function home(AuthenticationUtils $authenticationUtils): Response
     {
-        return new Response('Vous etes connecté');
-
+        return $this->renderView('security/index.html.twig');
     }
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
+         if ($this->getUser()) {
+             return $this->redirectToRoute('home');
+         }
 
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -34,5 +33,6 @@ class SecurityController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+        
     }
 }
