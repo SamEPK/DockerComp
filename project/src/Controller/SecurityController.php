@@ -9,6 +9,12 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
+    #[Route(path: '/home', name: 'home')]
+    public function home(AuthenticationUtils $authenticationUtils): Response
+    {
+        return new Response('Vous etes connecté');
+
+    }
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
