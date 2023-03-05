@@ -15,18 +15,25 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class BookController extends AbstractController
 {
+    private $bookRepository;
+
+    public function __construct(BookRepository $bookRepository)
+    {
+        $this->bookRepository = $bookRepository;
+    }
+
     /**
      * @Route("/", name="app_book_index", methods={"GET"})
      */
-    public function index(BookRepository $bookRepository): Response
+    public function index(): Response
     {
         return $this->render('book/index.html.twig', [
-            'books' => $bookRepository->findAll(),
+            'books' => $this->bookRepository->findAll(),
         ]);
     }
 
     /**
-     * @Route("/new", name="app_book_new", methods={"GET", "POST"})
+     * @Route("/new", name="app_book_new", methods={"GET","POST"})
      */
     public function new(Request $request, BookRepository $bookRepository): Response
     {
@@ -35,9 +42,17 @@ class BookController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $bookRepository->add($book, true);
+            $book->setPictureFile($form->get('pictureFile')->getData());
+            $book->uploadPicture();
 
-            return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+            $existingBook = $bookRepository->findOneBy(['isbn' => $book->getIsbn()]);
+            if ($existingBook) {
+                $this->addFlash('error', 'ISBN already exists!');
+                return $this->redirectToRoute('app_book_new');
+            } else {
+                $bookRepository->add($book, true);
+                return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->renderForm('book/new.html.twig', [
@@ -47,26 +62,41 @@ class BookController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_book_show", methods={"GET"})
+     * @Route("/{isbn}", name="app_book_show", methods={"GET"})
      */
-    public function show(Book $book): Response
+    public function show(string $isbn, BookRepository $bookRepository): Response
     {
+        $book = $bookRepository->findOneBy(['isbn' => $isbn]);
+
+        if (!$book) {
+            # throw $this->createNotFoundException('Le livre que vous recherchez n\'existe pas.');
+            $content = $this->render('errors/error404.html.twig');
+            return new Response($content, Response::HTTP_NOT_FOUND);
+        }
+
         return $this->render('book/show.html.twig', [
             'book' => $book,
         ]);
     }
 
     /**
-     * @Route("/{id}/edit", name="app_book_edit", methods={"GET", "POST"})
+     * @Route("/{isbn}/edit", name="app_book_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Book $book, BookRepository $bookRepository): Response
+    public function edit(Request $request, Book $book, BookRepository $bookRepository, string $isbn): Response
     {
+
         $form = $this->createForm(BookType::class, $book);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $bookRepository->add($book, true);
+        $book = $bookRepository->findOneBy(['isbn' => $isbn]);
+        if (!$book) {
+            # throw $this->createNotFoundException('Le livre que vous recherchez n\'existe pas.');
+            $content = $this->render('errors/error404.html.twig');
+            return new Response($content, Response::HTTP_NOT_FOUND);
+        }
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->bookRepository->add($book, true);
             return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -79,10 +109,10 @@ class BookController extends AbstractController
     /**
      * @Route("/{id}", name="app_book_delete", methods={"POST"})
      */
-    public function delete(Request $request, Book $book, BookRepository $bookRepository): Response
+    public function delete(Request $request, Book $book): Response
     {
         if ($this->isCsrfTokenValid('delete'.$book->getId(), $request->request->get('_token'))) {
-            $bookRepository->remove($book, true);
+            $this->bookRepository->remove($book, true);
         }
 
         return $this->redirectToRoute('app_book_index', [], Response::HTTP_SEE_OTHER);

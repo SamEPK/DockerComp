@@ -9,7 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<Book>
  *
- * @method Book|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Book|null find($isbn, $lockMode = null, $lockVersion = null)
  * @method Book|null findOneBy(array $criteria, array $orderBy = null)
  * @method Book[]    findAll()
  * @method Book[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
@@ -47,7 +47,7 @@ class BookRepository extends ServiceEntityRepository
 //        return $this->createQueryBuilder('b')
 //            ->andWhere('b.exampleField = :val')
 //            ->setParameter('val', $value)
-//            ->orderBy('b.id', 'ASC')
+//            ->orderBy('b.isbn', 'ASC')
 //            ->setMaxResults(10)
 //            ->getQuery()
 //            ->getResult()

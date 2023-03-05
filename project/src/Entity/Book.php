@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\BookRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=BookRepository::class)
@@ -38,14 +40,19 @@ class Book
     private $overview;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
     private $picture;
 
     /**
+     * @Assert\Image(mimeTypes={"image/jpeg", "image/png"})
+     */
+    private $pictureFile;
+
+    /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $readCount;
+    private $readCount = 1;
 
     public function getId(): ?int
     {
@@ -112,15 +119,70 @@ class Book
         return $this;
     }
 
+    public function setPictureFilename(?string $picture): self
+    {
+        $this->picture = $picture;
+
+        return $this;
+    }
+
+    public function getPictureFile(): ?File
+    {
+        return $this->picture;
+    }
+
+    public function setPictureFile(?File $pictureFile = null): self
+    {
+        $this->picture = $pictureFile;
+
+        if ($pictureFile !== null) {
+            $this->setUpdatedAt(new \DateTime());
+        }
+
+        return $this;
+    }
+
+    public function uploadPicture()
+    {
+        if ($this->pictureFile !== null) {
+            $newFilename = uniqid().'.'.$this->pictureFile->getClientOriginalExtension();
+
+            $this->pictureFile->move(
+                $this->getPictureDirectory(),
+                $newFilename
+            );
+
+            $this->setPictureFilename($newFilename);
+        }
+    }
+
+    public function getPicturePath(): ?string
+    {
+        if ($this->pictureFilename === null) {
+            return null;
+        }
+
+        return $this->getPictureDirectory().'/'.$this->pictureFilename;
+    }
+
+    public function getPictureDirectory(): string
+    {
+        return 'uploads/pictures';
+    }
+
     public function getReadCount(): ?int
     {
         return $this->readCount;
     }
 
-    public function setReadCount(?int $readCount): self
+    public function setReadCount(?int $readCount = 1): self
     {
-        $this->readCount = $readCount;
-
+        if($readCount == "" || $readCount = " "){
+            $this->readCount = 1;
+        }
+        else{
+            $this->readCount = $readCount;
+        }
         return $this;
     }
 }

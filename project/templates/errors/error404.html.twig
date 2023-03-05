@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page introuvable{% endblock %}
+
+{% block body %}
+    <h1>Oops! Page introuvable</h1>
+    <p>Désolé, la page que vous cherchez est introuvable.</p>
+    <a href="{{ path('app_book_index') }}">back to list</a>
+{% endblock %}
